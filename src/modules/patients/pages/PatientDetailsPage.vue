@@ -35,7 +35,7 @@ const patient = computed(() => {
       raw.patientCode ||
       raw.id,
     nom: raw.lastName || raw.nom || '',
-    postnom: '',
+    postnom: raw.middleName || raw.postnom || '',
     prenom: raw.firstName || raw.prenom || '',
     sexe: raw.gender || raw.sexe || '—',
     date_naissance: raw.birthDate || raw.date_naissance || '',
