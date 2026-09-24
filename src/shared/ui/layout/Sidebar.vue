@@ -57,6 +57,7 @@ const menuGroups = [
         label: "Patients",
         to: "/patients",
         roles: ["admin", "medecin", "secretaire", "infirmier"],
+        permission: "patient:read",
       },
       {
         label: "Agents CAC",
