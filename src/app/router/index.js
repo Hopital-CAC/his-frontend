@@ -188,6 +188,7 @@ const routes = [
         meta: {
           title: 'Patients',
           roles: ['admin', 'direction', 'medecin', 'secretaire', 'infirmier'],
+          permission: 'patient:read',
         },
       },
       {
@@ -197,6 +198,7 @@ const routes = [
         meta: {
           title: 'Créer patient',
           roles: ['admin', 'secretaire', 'infirmier'],
+          permission: 'patient:create',
         },
       },
       {
@@ -206,6 +208,7 @@ const routes = [
         meta: {
           title: 'Fiche patient',
           roles: ['admin', 'direction', 'medecin', 'secretaire', 'infirmier'],
+          permission: 'patient:read',
         },
       },
       {
@@ -215,6 +218,7 @@ const routes = [
         meta: {
           title: 'Modifier patient',
           roles: ['admin', 'secretaire', 'infirmier'],
+          permission: 'patient:update',
         },
       },
 
