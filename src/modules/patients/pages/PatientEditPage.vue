@@ -34,8 +34,7 @@ async function submit(payload) {
     console.error('[Patients] Erreur modification:', error)
 
     serverError.value =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
+      error?.message ||
       'Modification du patient impossible.'
 
     toast.error(serverError.value)

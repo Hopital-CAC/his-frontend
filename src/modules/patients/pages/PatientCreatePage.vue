@@ -53,9 +53,7 @@ async function submit(payload) {
     console.error('[Patients] Erreur création:', error)
 
     serverError.value =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.response?.data?.details ||
+      error?.message ||
       'Création du patient impossible. Vérifie les champs obligatoires.'
 
     toast.error(serverError.value)
