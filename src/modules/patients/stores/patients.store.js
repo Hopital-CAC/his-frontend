@@ -46,7 +46,7 @@ function normalizePatient(patient) {
     identification.patientCode ||
     identification.numero_patient ||
     identification.numero_patient ||
-    'Â'
+    '—'
 
   return {
     raw: patient,
@@ -68,7 +68,7 @@ function normalizePatient(patient) {
     postnom: middleName,
     prenom: firstName,
 
-    sexe: patient.gender || patient.sexe || identification.gender || identification.sexe || 'Â',
+    sexe: patient.gender || patient.sexe || identification.gender || identification.sexe || '—',
 
     date_naissance:
       patient.birthDate ||
@@ -298,7 +298,7 @@ export const usePatientsStore = defineStore('patients', {
         const response = await patientsService.create(payload)
         const created = normalizeSingleResponse(response)
 
-        toast.success('Patient crÃÂ©ÃÂ© avec succÃÂ¨s.')
+        toast.success('Patient créé avec succès.')
 
         await statusBroadcastService.broadcastSafe({
           module: HIS_STATUS_MODULES.PATIENTS,
@@ -309,13 +309,13 @@ export const usePatientsStore = defineStore('patients', {
             numero_patient: created?.numero_patient,
             patient: patientFullName(created),
             action: 'PATIENT_CREATED',
-            message: 'Patient crÃÂ©ÃÂ©',
+            message: 'Patient créé',
           },
         })
 
         return created
       } catch (error) {
-        const message = error?.message || 'CrÃÂ©ation du patient impossible.'
+        const message = error?.message || 'Création du patient impossible.'
         this.error = message
         toast.error(message)
         throw error
@@ -338,7 +338,7 @@ export const usePatientsStore = defineStore('patients', {
           this.selectedPatient = updated
         }
 
-        toast.success('Patient mis ÃÂ  jour avec succÃÂ¨s.')
+        toast.success('Patient mis à jour avec succès.')
 
         await statusBroadcastService.broadcastSafe({
           module: HIS_STATUS_MODULES.PATIENTS,
@@ -349,13 +349,13 @@ export const usePatientsStore = defineStore('patients', {
             numero_patient: updated?.numero_patient,
             patient: patientFullName(updated),
             action: 'PATIENT_UPDATED',
-            message: 'Patient mis ÃÂ  jour',
+            message: 'Patient mis à jour',
           },
         })
 
         return updated
       } catch (error) {
-        const message = error?.message || 'Mise ÃÂ  jour du patient impossible.'
+        const message = error?.message || 'Mise à jour du patient impossible.'
         this.error = message
         toast.error(message)
 
