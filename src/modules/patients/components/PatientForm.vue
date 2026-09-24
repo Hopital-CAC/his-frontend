@@ -98,7 +98,6 @@ const relationOptions = [
 const statutOptions = [
   { label: 'Actif', value: 'active' },
   { label: 'Inactif', value: 'inactive' },
-  { label: 'Archivé', value: 'archived' },
 ]
 
 const isEdit = computed(() => Boolean(props.initialValue))
