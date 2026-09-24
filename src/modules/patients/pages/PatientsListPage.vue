@@ -40,8 +40,7 @@ async function loadPatients(params = {}) {
     console.error('[Patients] Erreur chargement liste:', error)
 
     toast.error(
-      error.response?.data?.message ||
-        error.response?.data?.error ||
+      error?.message ||
         'Impossible de charger la liste des patients.',
     )
   }
@@ -61,8 +60,7 @@ async function search(query) {
     console.error('[Patients] Erreur recherche:', error)
 
     toast.error(
-      error.response?.data?.message ||
-        error.response?.data?.error ||
+      error?.message ||
         'Recherche patient impossible.',
     )
   }

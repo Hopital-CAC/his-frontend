@@ -101,7 +101,7 @@ async function loadDossier() {
     dossier.value = await patientsService.getDossier(patientId.value)
   } catch (err) {
     console.error('[Patients] Dossier patient introuvable:', err)
-    error.value = err.response?.data?.message || 'Dossier patient introuvable.'
+    error.value = err?.message || 'Dossier patient introuvable.'
     toast.error(error.value)
     router.push('/patients')
   } finally {

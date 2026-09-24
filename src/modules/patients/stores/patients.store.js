@@ -229,7 +229,7 @@ export const usePatientsStore = defineStore('patients', {
 
         return normalized
       } catch (error) {
-        this.error = error.response?.data?.message || 'Impossible de charger les patients.'
+        this.error = error?.message || 'Impossible de charger les patients.'
         throw error
       } finally {
         this.loading = false
@@ -263,7 +263,7 @@ export const usePatientsStore = defineStore('patients', {
 
         return normalized
       } catch (error) {
-        this.error = error.response?.data?.message || 'Recherche patient impossible.'
+        this.error = error?.message || 'Recherche patient impossible.'
         throw error
       } finally {
         this.searching = false
@@ -281,7 +281,7 @@ export const usePatientsStore = defineStore('patients', {
 
         return this.selectedPatient
       } catch (error) {
-        this.error = error.response?.data?.message || 'Patient introuvable.'
+        this.error = error?.message || 'Patient introuvable.'
         throw error
       } finally {
         this.loading = false
@@ -315,7 +315,7 @@ export const usePatientsStore = defineStore('patients', {
 
         return created
       } catch (error) {
-        const message = error.response?.data?.message || 'CrÃÂ©ation du patient impossible.'
+        const message = error?.message || 'CrÃÂ©ation du patient impossible.'
         this.error = message
         toast.error(message)
         throw error
@@ -355,7 +355,7 @@ export const usePatientsStore = defineStore('patients', {
 
         return updated
       } catch (error) {
-        const message = error.response?.data?.message || 'Mise ÃÂ  jour du patient impossible.'
+        const message = error?.message || 'Mise ÃÂ  jour du patient impossible.'
         this.error = message
         toast.error(message)
 
@@ -388,7 +388,7 @@ export const usePatientsStore = defineStore('patients', {
           },
         })
       } catch (error) {
-        const message = error.response?.data?.message || 'Archivage du patient impossible.'
+        const message = error?.message || 'Archivage du patient impossible.'
         this.error = message
         toast.error(message)
 
