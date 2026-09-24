@@ -14,7 +14,7 @@ defineProps({
   },
 })
 
-defineEmits(['deactivate'])
+defineEmits(['archive'])
 
 function fullName(patient) {
   return [patient.nom, patient.postnom, patient.prenom].filter(Boolean).join(' ') || '—'
@@ -114,8 +114,8 @@ function fullName(patient) {
                   <BaseButton variant="secondary" size="sm"> Modifier </BaseButton>
                 </RouterLink>
 
-                <BaseButton variant="danger" size="sm" @click="$emit('deactivate', patient)">
-                  Désactiver
+                <BaseButton variant="danger" size="sm" @click="$emit('archive', patient)">
+                  Archiver
                 </BaseButton>
               </div>
             </td>
@@ -178,8 +178,8 @@ function fullName(patient) {
             <BaseButton variant="secondary" size="sm"> Modifier </BaseButton>
           </RouterLink>
 
-          <BaseButton variant="danger" size="sm" @click="$emit('deactivate', patient)">
-            Désactiver
+          <BaseButton variant="danger" size="sm" @click="$emit('archive', patient)">
+            Archiver
           </BaseButton>
         </div>
       </article>
