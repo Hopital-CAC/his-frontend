@@ -15,7 +15,7 @@ import { useToastStore } from '@/shared/stores/toast.store'
 const store = usePatientsStore()
 const toast = useToastStore()
 
-const patientToDeactivate = ref(null)
+const patientToArchive = ref(null)
 const confirmOpen = ref(false)
 
 const totalLabel = computed(() => {
@@ -77,24 +77,24 @@ async function resetSearch() {
   })
 }
 
-function askDeactivate(patient) {
-  patientToDeactivate.value = patient
+function askArchive(patient) {
+  patientToArchive.value = patient
   confirmOpen.value = true
 }
 
 function closeConfirm() {
-  patientToDeactivate.value = null
+  patientToArchive.value = null
   confirmOpen.value = false
 }
 
-async function confirmDeactivate() {
-  if (!patientToDeactivate.value?.id) return
+async function confirmArchive() {
+  if (!patientToArchive.value?.id) return
 
   try {
-    await store.deactivatePatient(patientToDeactivate.value.id)
+    await store.archivePatient(patientToArchive.value.id)
     closeConfirm()
   } catch (error) {
-    console.error('[Patients] Erreur désactivation:', error)
+    console.error('[Patients] Erreur archivage:', error)
   }
 }
 </script>
@@ -106,7 +106,7 @@ async function confirmDeactivate() {
         <h1 class="his-page-title">Patients</h1>
 
         <p class="his-page-subtitle">
-          Gestion des dossiers patients, recherche, création, modification et désactivation.
+          Gestion des dossiers patients, recherche, création, modification et archivage.
         </p>
       </div>
 
@@ -141,7 +141,7 @@ async function confirmDeactivate() {
       <PatientTable
         :patients="store.patients"
         :loading="store.loading"
-        @deactivate="askDeactivate"
+        @archive="askArchive"
       />
 
       <div class="mt-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -171,14 +171,14 @@ async function confirmDeactivate() {
 
     <ConfirmDialog
       :open="confirmOpen"
-      title="Désactiver ce patient"
-      :message="`Cette action va désactiver le patient ${patientToDeactivate?.nom || ''} ${patientToDeactivate?.prenom || ''}. Le dossier ne sera pas supprimé physiquement, mais il ne devra plus être utilisé comme patient actif.`"
-      confirm-label="Désactiver patient"
+      title="Archiver ce patient"
+      :message="`Cette action va archiver le patient ${patientToArchive?.nom || ''} ${patientToArchive?.prenom || ''}. Le dossier ne sera pas supprimé physiquement, mais il ne devra plus être utilisé comme patient actif.`"
+      confirm-label="Archiver patient"
       cancel-label="Annuler"
       variant="danger"
-      :loading="store.deleting"
+      :loading="store.archiving"
       @cancel="closeConfirm"
-      @confirm="confirmDeactivate"
+      @confirm="confirmArchive"
     />
   </div>
 </template>

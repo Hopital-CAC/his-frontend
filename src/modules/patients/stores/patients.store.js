@@ -185,7 +185,7 @@ export const usePatientsStore = defineStore('patients', {
 
     loading: false,
     saving: false,
-    deleting: false,
+    archiving: false,
     searching: false,
 
     error: '',
@@ -365,36 +365,36 @@ export const usePatientsStore = defineStore('patients', {
       }
     },
 
-    async deactivatePatient(id) {
+    async archivePatient(id) {
       const toast = useToastStore()
 
-      this.deleting = true
+      this.archiving = true
       this.error = ''
 
       try {
-        await patientsService.deactivate(id)
+        await patientsService.archive(id)
 
         this.patients = this.patients.filter((patient) => String(patient.id) !== String(id))
 
-        toast.success('Patient dÃÂ©sactivÃÂ© avec succÃÂ¨s.')
+        toast.success('Patient archivé avec succès.')
 
         await statusBroadcastService.broadcastSafe({
           module: HIS_STATUS_MODULES.PATIENTS,
           id,
-          status: HIS_STATUSES.DELETED,
+          status: HIS_STATUSES.ARCHIVED,
           details: {
-            action: 'PATIENT_DEACTIVATED',
-            message: 'Patient dÃÂ©sactivÃÂ©',
+            action: 'PATIENT_ARCHIVED',
+            message: 'Patient archivé',
           },
         })
       } catch (error) {
-        const message = error.response?.data?.message || 'DÃÂ©sactivation du patient impossible.'
+        const message = error.response?.data?.message || 'Archivage du patient impossible.'
         this.error = message
         toast.error(message)
 
         throw error
       } finally {
-        this.deleting = false
+        this.archiving = false
       }
     },
   },

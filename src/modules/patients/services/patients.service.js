@@ -58,7 +58,7 @@ export const patientsService = {
     return unwrapResponse(response)
   },
 
-  async deactivate(id) {
+  async archive(id) {
     const response = await api.delete(`/patients/${id}`)
     return unwrapResponse(response)
   },
