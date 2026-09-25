@@ -316,8 +316,17 @@ export const usePatientsStore = defineStore('patients', {
         return created
       } catch (error) {
         const message = error?.message || 'Création du patient impossible.'
+        const handledByCandidateMatching = [
+          'PATIENT_DUPLICATE_SUSPECTED',
+          'PATIENT_DUPLICATE_RECHECK_REQUIRED',
+        ].includes(error?.code)
+
         this.error = message
-        toast.error(message)
+
+        if (!handledByCandidateMatching) {
+          toast.error(message)
+        }
+
         throw error
       } finally {
         this.saving = false
