@@ -187,7 +187,7 @@ const routes = [
         component: PatientsListPage,
         meta: {
           title: 'Patients',
-          roles: ['admin', 'direction', 'medecin', 'secretaire', 'infirmier'],
+          roles: ['admin', 'direction', 'medecin', 'secretaire', 'receptionist', 'infirmier'],
           permission: 'patient:read',
         },
       },
@@ -197,7 +197,7 @@ const routes = [
         component: PatientCreatePage,
         meta: {
           title: 'Créer patient',
-          roles: ['admin', 'secretaire', 'infirmier'],
+          roles: ['admin', 'secretaire', 'receptionist', 'infirmier'],
           permission: 'patient:create',
         },
       },
@@ -207,7 +207,7 @@ const routes = [
         component: PatientDetailsPage,
         meta: {
           title: 'Fiche patient',
-          roles: ['admin', 'direction', 'medecin', 'secretaire', 'infirmier'],
+          roles: ['admin', 'direction', 'medecin', 'secretaire', 'receptionist', 'infirmier'],
           permission: 'patient:read',
         },
       },
@@ -217,7 +217,7 @@ const routes = [
         component: PatientEditPage,
         meta: {
           title: 'Modifier patient',
-          roles: ['admin', 'secretaire', 'infirmier'],
+          roles: ['admin', 'secretaire', 'receptionist', 'infirmier'],
           permission: 'patient:update',
         },
       },

@@ -56,7 +56,7 @@ const menuGroups = [
       {
         label: "Patients",
         to: "/patients",
-        roles: ["admin", "medecin", "secretaire", "infirmier"],
+        roles: ["admin", "medecin", "secretaire", "receptionist", "infirmier"],
         permission: "patient:read",
       },
       {

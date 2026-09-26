@@ -37,4 +37,21 @@ describe('RBAC frontend Patient', () => {
       /label:\s*["']Patients["'][\s\S]*?permission:\s*["']patient:read["']/,
     )
   })
+  it('autorise le rôle backend RECEPTIONIST sur les surfaces Patient', () => {
+    expect(router).toMatch(
+      /name:\s*'patients'[\s\S]*?roles:\s*\[[^\]]*'receptionist'[^\]]*\][\s\S]*?permission:\s*'patient:read'/,
+    )
+    expect(router).toMatch(
+      /name:\s*'patients\.create'[\s\S]*?roles:\s*\[[^\]]*'receptionist'[^\]]*\][\s\S]*?permission:\s*'patient:create'/,
+    )
+    expect(router).toMatch(
+      /name:\s*'patients\.details'[\s\S]*?roles:\s*\[[^\]]*'receptionist'[^\]]*\][\s\S]*?permission:\s*'patient:read'/,
+    )
+    expect(router).toMatch(
+      /name:\s*'patients\.edit'[\s\S]*?roles:\s*\[[^\]]*'receptionist'[^\]]*\][\s\S]*?permission:\s*'patient:update'/,
+    )
+    expect(sidebar).toMatch(
+      /label:\s*["']Patients["'][\s\S]*?roles:\s*\[[^\]]*["']receptionist["'][^\]]*\][\s\S]*?permission:\s*["']patient:read["']/,
+    )
+  })
 })
