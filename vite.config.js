@@ -70,6 +70,25 @@ export default defineConfig(({command, mode})=>{
     },
   },
 
+  preview: {
+    host: '0.0.0.0',
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: proxyTarget,
+        changeOrigin: true,
+        secure: false,
+      },
+
+      '/socket.io': {
+        target: proxyTarget,
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
+    },
+  },
+
   build: {
     target: 'esnext',
     minify: 'esbuild',
