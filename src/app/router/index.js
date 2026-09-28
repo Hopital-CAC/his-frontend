@@ -229,7 +229,7 @@ const routes = [
         component: ReceptionDashboardPage,
         meta: {
           title: 'Dashboard Réception',
-          roles: ['admin', 'secretaire', 'infirmier'],
+          roles: ['admin', 'secretaire', 'receptionist', 'infirmier'],
           permission: 'reception:read',
         },
       },
