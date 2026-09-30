@@ -13,7 +13,12 @@ const defaultRouteSource = readFileSync(
   'utf8',
 )
 
-describe('RECEPTIONIST default route RBAC', () => {
+const sidebarSource = readFileSync(
+  resolve(process.cwd(), 'src/shared/ui/layout/Sidebar.vue'),
+  'utf8',
+)
+
+describe('RECEPTIONIST Reception RBAC', () => {
   it('autorise le rôle canonique sur le dashboard Réception choisi par reception:read', () => {
     expect(defaultRouteSource).toMatch(
       /permission:\s*["']reception:read["'][\s\S]*?path:\s*["']\/receptions\/dashboard["']/,
@@ -21,6 +26,30 @@ describe('RECEPTIONIST default route RBAC', () => {
 
     expect(routerSource).toMatch(
       /path:\s*["']receptions\/dashboard["'][\s\S]*?roles:\s*\[[^\]]*["']receptionist["'][^\]]*\][\s\S]*?permission:\s*["']reception:read["']/,
+    )
+  })
+
+  it('aligne les surfaces Réception sur les permissions backend du RECEPTIONIST', () => {
+    expect(routerSource).toMatch(
+      /name:\s*["']receptions["'][\s\S]*?roles:\s*\[[^\]]*["']receptionist["'][^\]]*\][\s\S]*?permission:\s*["']reception:read["']/,
+    )
+
+    expect(routerSource).toMatch(
+      /name:\s*["']receptions\.create["'][\s\S]*?roles:\s*\[[^\]]*["']receptionist["'][^\]]*\][\s\S]*?permission:\s*["']reception:create["']/,
+    )
+
+    expect(routerSource).toMatch(
+      /name:\s*["']receptions\.details["'][\s\S]*?roles:\s*\[[^\]]*["']receptionist["'][^\]]*\][\s\S]*?permission:\s*["']reception:read["']/,
+    )
+
+    expect(routerSource).toMatch(
+      /name:\s*["']receptions\.edit["'][\s\S]*?roles:\s*\[[^\]]*["']receptionist["'][^\]]*\][\s\S]*?permission:\s*["']reception:update["']/,
+    )
+  })
+
+  it('expose la navigation Réceptions au rôle RECEPTIONIST', () => {
+    expect(sidebarSource).toMatch(
+      /label:\s*["']Réceptions["'][\s\S]*?to:\s*["']\/receptions["'][\s\S]*?roles:\s*\[[^\]]*["']receptionist["'][^\]]*\]/,
     )
   })
 })

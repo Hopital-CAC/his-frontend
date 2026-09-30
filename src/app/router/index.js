@@ -239,7 +239,8 @@ const routes = [
         component: ReceptionsListPage,
         meta: {
           title: 'Réception / Admissions',
-          roles: ['admin', 'secretaire', 'infirmier'],
+          roles: ['admin', 'secretaire', 'receptionist', 'infirmier'],
+          permission: 'reception:read',
         },
       },
       {
@@ -248,7 +249,8 @@ const routes = [
         component: ReceptionCreatePage,
         meta: {
           title: 'Nouvelle réception',
-          roles: ['admin', 'secretaire'],
+          roles: ['admin', 'secretaire', 'receptionist'],
+          permission: 'reception:create',
         },
       },
       {
@@ -257,7 +259,8 @@ const routes = [
         component: ReceptionDetailsPage,
         meta: {
           title: 'Détail réception',
-          roles: ['admin', 'secretaire', 'infirmier', 'medecin'],
+          roles: ['admin', 'secretaire', 'receptionist', 'infirmier', 'medecin'],
+          permission: 'reception:read',
         },
       },
       {
@@ -266,7 +269,8 @@ const routes = [
         component: ReceptionEditPage,
         meta: {
           title: 'Modifier réception',
-          roles: ['admin', 'secretaire'],
+          roles: ['admin', 'secretaire', 'receptionist'],
+          permission: 'reception:update',
         },
       },
 
