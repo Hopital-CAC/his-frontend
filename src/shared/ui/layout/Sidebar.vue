@@ -68,7 +68,7 @@ const menuGroups = [
       {
         label: "Réceptions",
         to: "/receptions",
-        roles: ["admin", "secretaire"],
+        roles: ["admin", "secretaire", "receptionist"],
       },
       {
         label: "Rendez-vous",
