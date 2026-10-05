@@ -292,6 +292,7 @@ const routes = [
         meta: {
           title: 'Triage / Urgences',
           roles: ['admin', 'infirmier', 'medecin'],
+          permission: 'triage:read',
         },
       },
       {
@@ -301,6 +302,7 @@ const routes = [
         meta: {
           title: 'Nouveau triage',
           roles: ['admin', 'infirmier'],
+          permission: 'triage:create',
         },
       },
       {
@@ -310,6 +312,7 @@ const routes = [
         meta: {
           title: 'Modifier triage',
           roles: ['admin', 'infirmier'],
+          permission: 'triage:read',
         },
       },
       {
@@ -319,6 +322,7 @@ const routes = [
         meta: {
           title: 'Détail triage',
           roles: ['admin', 'infirmier', 'medecin'],
+          permission: 'triage:read',
         },
       },
 
