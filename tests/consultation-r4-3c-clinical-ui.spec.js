@@ -2,6 +2,7 @@ import {
   readFileSync,
 } from 'node:fs'
 import { resolve } from 'node:path'
+import process from 'node:process'
 
 import {
   describe,
@@ -166,17 +167,26 @@ describe(
     )
 
     it(
-      'restent désactivés à ce stade',
+      'sépare la saisie clinique de la clôture explicite',
       () => {
+        const form = source(
+          'src/modules/consultations/components/ConsultationClinicalForm.vue',
+        )
         const page = source(
           'src/modules/consultations/pages/ConsultationDetailsPage.vue',
         )
 
-        expect(page).toContain(
-          'Le diagnostic final',
+        expect(form).not.toContain(
+          'finalDiagnosis',
+        )
+        expect(form).not.toContain(
+          'Clôturer la consultation',
         )
         expect(page).toContain(
-          'restent désactivés',
+          'ConsultationCloseDrawer',
+        )
+        expect(page).toContain(
+          'canCloseConsultation',
         )
       },
     )
