@@ -2,6 +2,7 @@ import {
   readFileSync,
 } from 'node:fs'
 import { resolve } from 'node:path'
+import process from 'node:process'
 
 import {
   describe,
@@ -161,31 +162,29 @@ describe(
         )
       },
     )
-
     it(
-  'maintient hospitalisation sortie et clôture désactivées',
-  () => {
-    const page = source(
-      'src/modules/consultations/pages/ConsultationDetailsPage.vue',
-    )
+      'maintient la demande examen indépendante de la clôture',
+      () => {
+        const component = source(
+          'src/modules/consultations/components/ConsultationExamRequestDrawer.vue',
+        )
+        const page = source(
+          'src/modules/consultations/pages/ConsultationDetailsPage.vue',
+        )
 
-    expect(page).toContain(
-      'l’hospitalisation',
+        expect(component).not.toContain(
+          'finalDiagnosis',
+        )
+        expect(component).not.toContain(
+          'consultation:close',
+        )
+        expect(page).toContain(
+          'ConsultationCloseDrawer',
+        )
+        expect(page).toContain(
+          'Demander des examens',
+        )
+      },
     )
-    expect(page).toContain(
-      'la sortie',
-    )
-    expect(page).toContain(
-      'la clôture',
-    )
-    expect(page).toContain(
-      'restent désactivés',
-    )
-
-    expect(page).toContain(
-      'Prescrire',
-    )
-  },
-)
   },
 )

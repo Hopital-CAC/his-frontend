@@ -15,6 +15,7 @@ import ConsultationClinicalForm from '@/modules/consultations/components/Consult
 import ConsultationClinicalHistoryDrawer from '@/modules/consultations/components/ConsultationClinicalHistoryDrawer.vue'
 import ConsultationExamRequestDrawer from '@/modules/consultations/components/ConsultationExamRequestDrawer.vue'
 import ConsultationPrescriptionDrawer from '@/modules/consultations/components/ConsultationPrescriptionDrawer.vue'
+import ConsultationCloseDrawer from '@/modules/consultations/components/ConsultationCloseDrawer.vue'
 import ConsultationIdentityCard from '@/modules/consultations/components/ConsultationIdentityCard.vue'
 import {
   canEditClinicalConsultation,
@@ -36,6 +37,13 @@ import {
   prescriptionErrorMessage,
   prescriptionSummary,
 } from '@/modules/consultations/policies/consultation-prescription-ui.policy'
+import {
+  canCloseConsultation,
+  consultationCloseDecisionLabel,
+  consultationCloseErrorMessage,
+  createConfirmedConsultationClose,
+  isConsultationCloseVersionConflict,
+} from '@/modules/consultations/policies/consultation-close-ui.policy'
 import { useConsultationsStore } from '@/modules/consultations/stores/consultations.store'
 
 import { useToastStore } from '@/shared/stores/toast.store'
@@ -64,6 +72,10 @@ const examenDraft = ref(null)
 const prescriptionDrawerOpen = ref(false)
 const prescriptionConfirmOpen = ref(false)
 const prescriptionDraft = ref(null)
+const closeDrawerOpen = ref(false)
+const closeConfirmOpen = ref(false)
+const closeDraft = ref(null)
+const closeVersionConflict = ref(false)
 const clinicalDirty = ref(false)
 
 const isActive = computed(
@@ -96,7 +108,8 @@ const examenRequestDisabled = computed(
     !canRequestExamen.value ||
     clinicalDirty.value ||
     store.requestingExamen ||
-    store.creatingPrescription,
+    store.creatingPrescription ||
+    store.closingConsultation,
 )
 
 const canCreatePrescription = computed(() =>
@@ -111,7 +124,26 @@ const prescriptionDisabled = computed(
     !canCreatePrescription.value ||
     clinicalDirty.value ||
     store.creatingPrescription ||
-    store.requestingExamen,
+    store.requestingExamen ||
+    store.closingConsultation,
+)
+
+const canClose = computed(() =>
+  canCloseConsultation(
+    auth,
+    consultation.value,
+  ),
+)
+
+const closeDisabled = computed(
+  () =>
+    !canClose.value ||
+    clinicalDirty.value ||
+    store.savingClinical ||
+    store.requestingExamen ||
+    store.creatingPrescription ||
+    store.closingConsultation ||
+    closeVersionConflict.value,
 )
 
 const patientDisplayName = computed(() =>
@@ -152,8 +184,21 @@ const prescriptionConfirmationConsequence =
     )
   })
 
+const closeConfirmationConsequence = computed(
+  () => {
+    if (!closeDraft.value) return ''
+
+    return (
+      `Diagnostic final : ${closeDraft.value.finalDiagnosis}. ` +
+      `Décision : ${consultationCloseDecisionLabel(closeDraft.value.decision)}. ` +
+      'Après confirmation, la consultation sera clôturée et l’épisode sera orienté selon cette décision.'
+    )
+  },
+)
+
 async function loadConsultation() {
   versionConflict.value = false
+  closeVersionConflict.value = false
 
   try {
     await store.fetchConsultationById(
@@ -308,6 +353,67 @@ async function confirmPrescription() {
   } catch (error) {
     toast.error(
       prescriptionErrorMessage(error),
+    )
+  }
+}
+
+function openCloseDrawer() {
+  if (closeDisabled.value) return
+
+  closeDrawerOpen.value = true
+}
+
+function closeCloseDrawer() {
+  if (store.closingConsultation) return
+
+  closeDrawerOpen.value = false
+  closeDraft.value = null
+}
+
+function reviewClose(draft) {
+  closeDraft.value = draft
+  closeConfirmOpen.value = true
+}
+
+function closeCloseConfirmation() {
+  if (store.closingConsultation) return
+
+  closeConfirmOpen.value = false
+}
+
+async function confirmClose() {
+  if (!closeDraft.value) return
+
+  try {
+    await store.closeConsultation(
+      consultationId.value,
+      createConfirmedConsultationClose(
+        closeDraft.value,
+      ),
+    )
+
+    closeConfirmOpen.value = false
+    closeDrawerOpen.value = false
+    closeDraft.value = null
+    closeVersionConflict.value = false
+
+    toast.success(
+      'Consultation clôturée avec succès.',
+    )
+
+    await loadConsultation()
+  } catch (error) {
+    closeVersionConflict.value =
+      isConsultationCloseVersionConflict(
+        error,
+      )
+
+    if (closeVersionConflict.value) {
+      closeConfirmOpen.value = false
+    }
+
+    toast.error(
+      consultationCloseErrorMessage(error),
     )
   }
 }
@@ -555,13 +661,111 @@ onMounted(loadConsultation)
         </div>
       </section>
 
-      <div
-        class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600"
+      <section
+        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
       >
-        Le diagnostic final, l’hospitalisation,
-        la sortie et la clôture restent désactivés
-        à ce stade.
-      </div>
+        <div
+          class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        >
+          <div>
+            <h2
+              class="text-base font-bold text-slate-950"
+            >
+              Clôture de la consultation
+            </h2>
+
+            <p
+              class="mt-1 text-sm text-slate-600"
+            >
+              Enregistrez un diagnostic final et une
+              décision terminale. La transition de
+              l’épisode est contrôlée par le backend.
+            </p>
+
+            <p
+              v-if="clinicalDirty"
+              class="mt-2 text-sm font-medium text-amber-700"
+            >
+              Enregistrez d’abord les modifications
+              cliniques en cours avant de clôturer.
+            </p>
+
+            <div
+              v-if="closeVersionConflict"
+              class="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3"
+            >
+              <p
+                class="text-sm font-medium text-amber-800"
+              >
+                La consultation a changé depuis son
+                chargement. Actualisez le dossier avant
+                de recommencer la clôture.
+              </p>
+
+              <BaseButton
+                class="mt-3"
+                variant="secondary"
+                @click="loadConsultation"
+              >
+                Actualiser le dossier
+              </BaseButton>
+            </div>
+          </div>
+
+          <BaseButton
+            v-if="canClose"
+            variant="danger"
+            :disabled="closeDisabled"
+            @click="openCloseDrawer"
+          >
+            Clôturer la consultation
+          </BaseButton>
+        </div>
+
+        <div
+          v-if="
+            !isActive &&
+            (
+              consultation.closed_at ||
+              consultation.decision ||
+              consultation.diagnostique
+            )
+          "
+          class="mt-5 grid gap-4 rounded-2xl bg-slate-50 p-4 md:grid-cols-2"
+        >
+          <div>
+            <p
+              class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+            >
+              Diagnostic final
+            </p>
+            <p
+              class="mt-1 text-sm font-medium text-slate-900"
+            >
+              {{ consultation.diagnostique || '—' }}
+            </p>
+          </div>
+
+          <div>
+            <p
+              class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+            >
+              Décision finale
+            </p>
+            <p
+              class="mt-1 text-sm font-medium text-slate-900"
+            >
+              {{
+                consultation.decision
+                  ? consultationCloseDecisionLabel(
+                      consultation.decision,
+                    )
+                  : '—'
+              }}
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
 
     <ConsultationExamRequestDrawer
@@ -608,6 +812,29 @@ onMounted(loadConsultation)
       :loading="store.creatingPrescription"
       @close="closePrescriptionConfirmation"
       @confirm="confirmPrescription"
+    />
+
+    <ConsultationCloseDrawer
+      :open="closeDrawerOpen"
+      :consultation="consultation"
+      :loading="store.closingConsultation"
+      @close="closeCloseDrawer"
+      @review="reviewClose"
+    />
+
+    <ConfirmDialog
+      :open="closeConfirmOpen"
+      title="Confirmer la clôture"
+      message="Vérifiez le diagnostic final et la décision avant cette action définitive."
+      :patient-name="patientDisplayName"
+      :patient-id="consultation?.numero_patient || ''"
+      :consequence="closeConfirmationConsequence"
+      confirm-text="Clôturer la consultation"
+      require-text="CONFIRMER"
+      variant="danger"
+      :loading="store.closingConsultation"
+      @close="closeCloseConfirmation"
+      @confirm="confirmClose"
     />
 
     <ConsultationClinicalHistoryDrawer

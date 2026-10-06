@@ -2,6 +2,7 @@ import {
   readFileSync,
 } from 'node:fs'
 import { resolve } from 'node:path'
+import process from 'node:process'
 
 import {
   describe,
@@ -172,17 +173,26 @@ describe(
     )
 
     it(
-      'ne réactive pas diagnostic final hospitalisation sortie ou clôture',
+      'maintient la prescription indépendante de la clôture',
       () => {
+        const component = source(
+          'src/modules/consultations/components/ConsultationPrescriptionDrawer.vue',
+        )
         const page = source(
           'src/modules/consultations/pages/ConsultationDetailsPage.vue',
         )
 
-        expect(page).toContain(
-          'Le diagnostic final, l’hospitalisation',
+        expect(component).not.toContain(
+          'finalDiagnosis',
+        )
+        expect(component).not.toContain(
+          'consultation:close',
         )
         expect(page).toContain(
-          'restent désactivés',
+          'ConsultationCloseDrawer',
+        )
+        expect(page).toContain(
+          'Clôturer la consultation',
         )
       },
     )
