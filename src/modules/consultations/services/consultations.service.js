@@ -107,4 +107,13 @@ export const consultationsService = {
 
     return unwrapResponse(response)
   },
+
+  async close(id, payload) {
+    const response = await api.post(
+      `/consultations/${id}/close`,
+      payload,
+    )
+
+    return unwrapResponse(response)
+  },
 }
