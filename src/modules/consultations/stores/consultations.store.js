@@ -581,6 +581,8 @@ export const useConsultationsStore =
       examenRequestError: '',
       creatingPrescription: false,
       prescriptionCreateError: '',
+      closingConsultation: false,
+      consultationCloseError: '',
       clinicalHistoryLoading: false,
       clinicalHistoryError: '',
       clinicalHistoryItems: [],
@@ -870,6 +872,50 @@ export const useConsultationsStore =
           throw error
         } finally {
           this.creatingPrescription = false
+        }
+      },
+
+      async closeConsultation(id, payload) {
+        this.closingConsultation = true
+        this.consultationCloseError = ''
+
+        try {
+          const response =
+            await consultationsService.close(
+              id,
+              payload,
+            )
+
+          const updated =
+            normalizeSingleResponse(response)
+
+          if (!updated?.id) {
+            throw new Error(
+              'Le serveur n’a pas retourné la consultation clôturée.',
+            )
+          }
+
+          this.selectedConsultation = updated
+
+          const index =
+            this.consultations.findIndex(
+              (item) =>
+                String(item.id) === String(updated.id),
+            )
+
+          if (index >= 0) {
+            this.consultations[index] = updated
+          }
+
+          return updated
+        } catch (error) {
+          this.consultationCloseError =
+            error?.message ||
+            'Clôture de la consultation impossible.'
+
+          throw error
+        } finally {
+          this.closingConsultation = false
         }
       },
 
