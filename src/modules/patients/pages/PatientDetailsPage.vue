@@ -307,24 +307,6 @@ onMounted(loadDossier)
               class="w-full justify-start"
               variant="secondary"
               :disabled="!hasNumeroFiche"
-              @click="openWorkflow('/laboratoire/create')"
-            >
-              Demande laboratoire
-            </BaseButton>
-
-            <BaseButton
-              class="w-full justify-start"
-              variant="secondary"
-              :disabled="!hasNumeroFiche"
-              @click="openWorkflow('/imagerie/create')"
-            >
-              Demande imagerie
-            </BaseButton>
-
-            <BaseButton
-              class="w-full justify-start"
-              variant="secondary"
-              :disabled="!hasNumeroFiche"
               @click="openWorkflow('/pharmacie/create')"
             >
               Prescription pharmacie
