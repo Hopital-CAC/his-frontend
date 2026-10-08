@@ -17,6 +17,13 @@ const physicianEmail =
 const physicianPassword =
   process.env.E2E_MEDECIN_PASSWORD
 
+const laboratoryEmail =
+  process.env.E2E_LAB_EMAIL
+const laboratoryPassword =
+  process.env.E2E_LAB_PASSWORD
+const laboratoryRole =
+  process.env.E2E_LAB_ROLE || 'LABORANTIN'
+
 function uniqueIdentity() {
   const digits =
     `${Date.now()}${Math.floor(Math.random() * 100000)}`
@@ -859,6 +866,243 @@ async function saveClinicalData(
   })
 }
 
+async function requestLaboratoryExam(
+  page,
+  consultationId,
+) {
+  const examName =
+    `Goutte épaisse E2E ${Date.now()}`
+  const clinicalIndication =
+    'Recherche de paludisme — parcours navigateur Examens Phase 10'
+
+  await page
+    .getByRole('button', {
+      name: 'Demander des examens',
+    })
+    .click()
+
+  await expect(
+    page.getByText('Examens demandés'),
+  ).toBeVisible()
+
+  await page
+    .getByLabel('Type d’examen')
+    .selectOption('LABORATOIRE')
+
+  await page
+    .getByLabel('Nom de l’examen')
+    .fill(examName)
+
+  await page
+    .getByLabel('Indication clinique')
+    .fill(clinicalIndication)
+
+  await page
+    .getByRole('button', {
+      name: 'Vérifier les examens',
+    })
+    .click()
+
+  const dialog =
+    page.getByRole('dialog', {
+      name: 'Confirmer la demande d’examens',
+    })
+
+  await expect(dialog).toBeVisible()
+
+  await dialog
+    .getByLabel(
+      'Saisir CONFIRMER pour confirmer',
+    )
+    .fill('CONFIRMER')
+
+  const path =
+    `/api/v1/consultations/${consultationId}/examens/batch`
+
+  const requestPromise =
+    page.waitForRequest(
+      (request) =>
+        isApiRequest(
+          request,
+          'POST',
+          path,
+        ),
+    )
+
+  const responsePromise =
+    page.waitForResponse(
+      (response) =>
+        isApiResponse(
+          response,
+          'POST',
+          path,
+        ) &&
+        response.status() === 201,
+    )
+
+  await dialog
+    .getByRole('button', {
+      name: 'Demander les examens',
+    })
+    .click()
+
+  const [request, response] =
+    await Promise.all([
+      requestPromise,
+      responsePromise,
+    ])
+
+  const requestPayload =
+    request.postDataJSON()
+
+  expect(requestPayload).toMatchObject({
+    confirmationAcknowledged: true,
+    items: [
+      {
+        type: 'LABORATOIRE',
+        name: examName,
+        clinicalIndication,
+      },
+    ],
+  })
+
+  const body = await response.json()
+
+  const items =
+    body?.data?.items ??
+    body?.items ??
+    body?.data ??
+    []
+
+  const firstExam =
+    Array.isArray(items)
+      ? items[0]
+      : null
+
+  const examenId =
+    String(firstExam?.id || '')
+
+  expect(examenId).toBeTruthy()
+
+  await expect(
+    page.getByText(
+      'Demande d’examens enregistrée.',
+    ),
+  ).toBeVisible()
+
+  return examenId
+}
+
+async function validateLaboratoryResult(
+  page,
+  examenId,
+) {
+  const resultText =
+    'Paludisme positif — validation E2E navigateur'
+  const resultConclusion =
+    'Résultat biologique validé par le parcours E2E Phase 10.'
+
+  await page.goto(
+    `/laboratoire/${examenId}`,
+  )
+
+  await expect(
+    page.getByRole('heading', {
+      name: 'Détail laboratoire',
+    }),
+  ).toBeVisible()
+
+  await page
+    .getByLabel('Résultat de l’examen')
+    .fill(resultText)
+
+  await page
+    .getByLabel('Conclusion')
+    .fill(resultConclusion)
+
+  await page
+    .getByRole('button', {
+      name: 'Valider le résultat',
+    })
+    .click()
+
+  const dialog =
+    page.getByRole('dialog', {
+      name: 'Valider définitivement le résultat',
+    })
+
+  await expect(dialog).toBeVisible()
+
+  await dialog
+    .getByLabel(
+      'Saisir CONFIRMER pour confirmer',
+    )
+    .fill('CONFIRMER')
+
+  const path =
+    `/api/v1/examens/${examenId}/result`
+
+  const requestPromise =
+    page.waitForRequest(
+      (request) =>
+        isApiRequest(
+          request,
+          'PATCH',
+          path,
+        ),
+    )
+
+  const responsePromise =
+    page.waitForResponse(
+      (response) =>
+        isApiResponse(
+          response,
+          'PATCH',
+          path,
+        ) &&
+        response.status() === 200,
+    )
+
+  await dialog
+    .getByRole('button', {
+      name: 'Valider le résultat',
+    })
+    .click()
+
+  const [request, response] =
+    await Promise.all([
+      requestPromise,
+      responsePromise,
+    ])
+
+  expect(response.status()).toBe(200)
+
+  expect(
+    request.postDataJSON(),
+  ).toEqual({
+    resultText,
+    resultConclusion,
+    resultFileUrl: null,
+  })
+
+  const body = await response.json()
+
+  const examen =
+    responseItem(body)
+
+  expect(
+    examen?.status ??
+      examen?.statut,
+  ).toBe('RESULTAT_DISPONIBLE')
+
+  await expect(
+    page.getByText('Résultat validé', { exact: true }),
+  ).toBeVisible()
+
+  await expect(
+    page.getByText(resultText),
+  ).toBeVisible()
+}
 async function closeConsultation(
   page,
   consultationId,
@@ -973,7 +1217,7 @@ test.describe(
     test.setTimeout(180_000)
 
     test(
-      'Réception → Triage → Consultation → clinique → clôture sortie',
+      'Réception → Triage → Consultation → examen labo → résultat → clôture sortie',
       async ({ page }) => {
         const identity =
           uniqueIdentity()
@@ -1053,6 +1297,7 @@ test.describe(
             'consultation:create',
             'consultation:update',
             'consultation:close',
+            'examen:create',
           ]),
         )
 
@@ -1066,6 +1311,53 @@ test.describe(
         await saveClinicalData(
           page,
           consultationId,
+        )
+
+        const examenId =
+          await requestLaboratoryExam(
+            page,
+            consultationId,
+          )
+
+        const laboratorySession =
+          await switchUser(
+            page,
+            laboratoryEmail,
+            laboratoryPassword,
+            laboratoryRole,
+          )
+
+        expect(
+          laboratorySession.permissions,
+        ).toEqual(
+          expect.arrayContaining([
+            'examen:update_result',
+          ]),
+        )
+
+        await validateLaboratoryResult(
+          page,
+          examenId,
+        )
+
+        const physicianSessionAfterResult =
+          await switchUser(
+            page,
+            physicianEmail,
+            physicianPassword,
+            'MEDECIN',
+          )
+
+        expect(
+          physicianSessionAfterResult.permissions,
+        ).toEqual(
+          expect.arrayContaining([
+            'consultation:close',
+          ]),
+        )
+
+        await page.goto(
+          `/consultations/${consultationId}`,
         )
 
         await closeConsultation(
