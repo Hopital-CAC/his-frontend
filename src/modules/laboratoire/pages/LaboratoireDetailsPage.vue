@@ -45,7 +45,7 @@ const canValidateResult = computed(() => {
   ).toLowerCase()
 
   return (
-    ['admin', 'laborantin'].includes(role) &&
+    ['admin', 'laborantin', 'lab_technician', 'lab_biologist'].includes(role) &&
     auth.hasPermission('examen:update_result') &&
     isPending.value
   )

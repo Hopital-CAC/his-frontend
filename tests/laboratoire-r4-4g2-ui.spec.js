@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import process from 'node:process'
 
 function source(path) {
   return readFileSync(resolve(process.cwd(), path), 'utf8')
@@ -17,14 +18,14 @@ describe('R4.4G2 — UI Laboratoire', () => {
   })
 
   it(
-  'réserve l’espace opérationnel au Laborantin et à l’Admin',
+  'réserve l’espace opérationnel aux rôles laboratoire autorisés et à l’Admin',
   () => {
     const router = source(
       'src/app/router/index.js',
     )
 
     expect(router).toMatch(
-      /path:\s*['"]\/?laboratoire['"][\s\S]*?roles:\s*\[\s*['"]admin['"]\s*,\s*['"]laborantin['"]\s*\]/
+      /path:\s*['"]\/?laboratoire['"][\s\S]*?roles:\s*\[\s*['"]admin['"]\s*,\s*['"]laborantin['"]\s*,\s*['"]lab_technician['"]\s*,\s*['"]lab_biologist['"]\s*\]/
     )
   },
 )
@@ -41,7 +42,7 @@ describe('R4.4G2 — UI Laboratoire', () => {
       "auth.hasPermission('examen:update_result')",
     )
     expect(details).toContain(
-      "['admin', 'laborantin'].includes(role)",
+      "['admin', 'laborantin', 'lab_technician', 'lab_biologist'].includes(role)",
     )
   })
 

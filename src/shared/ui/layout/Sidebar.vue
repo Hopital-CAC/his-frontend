@@ -90,13 +90,13 @@ const menuGroups = [
       {
         label: "Laboratoire",
         to: "/laboratoire",
-        roles: ["admin", "laborantin"],
+        roles: ["admin", "laborantin", "lab_technician", "lab_biologist"],
         permission: "examen:read",
       },
       {
         label: "Imagerie",
         to: "/imagerie",
-        roles: ["admin", "imagerie"],
+        roles: ["admin", "imagerie", "radiology_technician", "radiologist"],
         permission: "examen:read",
       },
       {
