@@ -34,11 +34,27 @@ const ROLE_DEFAULT_ROUTES = {
     permission: "examen:read",
     path: "/laboratoire/dashboard",
   },
+  lab_technician: {
+    permission: "examen:read",
+    path: "/laboratoire/dashboard",
+  },
+  lab_biologist: {
+    permission: "examen:read",
+    path: "/laboratoire/dashboard",
+  },
   radiologue: {
     permission: "examen:read",
     path: "/imagerie",
   },
   imagerie: {
+    permission: "examen:read",
+    path: "/imagerie",
+  },
+  radiology_technician: {
+    permission: "examen:read",
+    path: "/imagerie",
+  },
+  radiologist: {
     permission: "examen:read",
     path: "/imagerie",
   },

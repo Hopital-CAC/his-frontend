@@ -430,7 +430,7 @@ const routes = [
         component: LaboratoireDashboardPage,
         meta: {
           title: 'Dashboard Laboratoire',
-          roles: ['admin', 'laborantin'],
+          roles: ['admin', 'laborantin', 'lab_technician', 'lab_biologist'],
           permission: 'examen:read',
         },
       },
@@ -440,7 +440,7 @@ const routes = [
         component: LaboratoireListPage,
         meta: {
           title: 'Laboratoire',
-          roles: ['admin', 'laborantin'],
+          roles: ['admin', 'laborantin', 'lab_technician', 'lab_biologist'],
           permission: 'examen:read',
         },
       },
@@ -450,7 +450,7 @@ const routes = [
         component: LaboratoireDetailsPage,
         meta: {
           title: 'Détail laboratoire',
-          roles: ['admin', 'laborantin'],
+          roles: ['admin', 'laborantin', 'lab_technician', 'lab_biologist'],
           permission: 'examen:read',
         },
       },
@@ -463,7 +463,7 @@ const routes = [
         component: ImagerieListPage,
         meta: {
           title: 'Imagerie',
-          roles: ['admin', 'imagerie'],
+          roles: ['admin', 'imagerie', 'radiology_technician', 'radiologist'],
           permission: 'examen:read',
         },
       },
@@ -473,7 +473,7 @@ const routes = [
         component: ImagerieDetailsPage,
         meta: {
           title: 'Détail imagerie',
-          roles: ['admin', 'imagerie'],
+          roles: ['admin', 'imagerie', 'radiology_technician', 'radiologist'],
           permission: 'examen:read',
         },
       },

@@ -1,3 +1,4 @@
+import process from 'node:process'
 import {
   readFileSync,
 } from 'node:fs'
@@ -80,7 +81,7 @@ describe(
       )
     })
 
-    it('aligne le routage frontend sur examen:read et le rôle imagerie', () => {
+    it('aligne le routage frontend sur examen:read et les rôles opérationnels imagerie', () => {
       const router = source(
         'src/app/router/index.js',
       )
@@ -92,7 +93,7 @@ describe(
       )
 
       expect(router).toMatch(
-        /path: 'imagerie'[\s\S]*?roles: \['admin', 'imagerie'\][\s\S]*?permission: 'examen:read'/,
+        /path: 'imagerie'[\s\S]*?roles: \['admin', 'imagerie', 'radiology_technician', 'radiologist'\][\s\S]*?permission: 'examen:read'/,
       )
       expect(sidebar).toMatch(
         /label: "Imagerie"[\s\S]*?permission: "examen:read"/,
