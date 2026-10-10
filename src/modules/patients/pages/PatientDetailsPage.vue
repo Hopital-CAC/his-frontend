@@ -53,9 +53,7 @@ const stats = computed(() => dossier.value?.stats || {})
 const timeline = computed(() => dossier.value?.timeline || [])
 const episodes = computed(() => dossier.value?.episodes || [])
 const receptions = computed(() => dossier.value?.receptions || [])
-const factures = computed(() => dossier.value?.factures || [])
 const paiements = computed(() => dossier.value?.paiements || [])
-const triages = computed(() => dossier.value?.triages || [])
 const consultations = computed(() => dossier.value?.consultations || [])
 const examens = computed(() => dossier.value?.examens || [])
 const prescriptions = computed(() => dossier.value?.prescriptions || [])
@@ -301,15 +299,6 @@ onMounted(loadDossier)
               @click="openWorkflow('/consultations/create')"
             >
               Ouvrir consultation
-            </BaseButton>
-
-            <BaseButton
-              class="w-full justify-start"
-              variant="secondary"
-              :disabled="!hasNumeroFiche"
-              @click="openWorkflow('/pharmacie/create')"
-            >
-              Prescription pharmacie
             </BaseButton>
 
             <BaseButton

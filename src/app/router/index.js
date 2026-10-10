@@ -49,9 +49,7 @@ import ImagerieDetailsPage from '@/modules/imagerie/pages/ImagerieDetailsPage.vu
 // route pharmacie
 import PharmacieDashboardPage from '@/modules/pharmacie/pages/PharmacieDashboardPage.vue'
 import PharmacieListPage from '@/modules/pharmacie/pages/PharmacieListPage.vue'
-import PharmacieCreatePage from '@/modules/pharmacie/pages/PharmacieCreatePage.vue'
 import PharmacieDetailsPage from '@/modules/pharmacie/pages/PharmacieDetailsPage.vue'
-import PharmacieEditPage from '@/modules/pharmacie/pages/PharmacieEditPage.vue'
 
 // route caisse
 import CaisseListPage from '@/modules/caisse/pages/CaisseListPage.vue'
@@ -495,24 +493,6 @@ const routes = [
         component: PharmacieListPage,
         meta: {
           title: 'Pharmacie / Prescriptions',
-          roles: ['admin', 'medecin', 'pharmacien'],
-        },
-      },
-      {
-        path: 'pharmacie/create',
-        name: 'pharmacie.create',
-        component: PharmacieCreatePage,
-        meta: {
-          title: 'Nouvelle prescription',
-          roles: ['admin', 'medecin', 'pharmacien'],
-        },
-      },
-      {
-        path: 'pharmacie/:id/edit',
-        name: 'pharmacie.edit',
-        component: PharmacieEditPage,
-        meta: {
-          title: 'Modifier prescription',
           roles: ['admin', 'medecin', 'pharmacien'],
         },
       },

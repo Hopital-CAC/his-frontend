@@ -5,33 +5,27 @@ import BaseBadge from '@/shared/ui/base/BaseBadge.vue'
 const props = defineProps({
   statut: {
     type: String,
-    default: 'pending',
+    default: '',
   },
 })
 
-const normalized = computed(() => String(props.statut || '').toLowerCase())
+const normalized = computed(() => String(props.statut || '').toUpperCase())
 
 const variant = computed(() => {
-  if (['delivered', 'delivre', 'délivré'].includes(normalized.value)) return 'success'
-  if (['partial', 'partiel'].includes(normalized.value)) return 'warning'
-  if (['cancelled', 'annule', 'annulé'].includes(normalized.value)) return 'danger'
-  if (['pending', 'attente', 'en_attente'].includes(normalized.value)) return 'warning'
+  if (normalized.value === 'SERVIE') return 'success'
+  if (normalized.value === 'PARTIELLEMENT_SERVIE') return 'warning'
+  if (normalized.value === 'ANNULEE') return 'danger'
+  if (['VALIDEE', 'PRESCRITE'].includes(normalized.value)) return 'warning'
   return 'neutral'
 })
 
 const label = computed(() => {
   const labels = {
-    delivered: 'Délivrée',
-    delivre: 'Délivrée',
-    délivré: 'Délivrée',
-    partial: 'Partielle',
-    partiel: 'Partielle',
-    pending: 'En attente',
-    attente: 'En attente',
-    en_attente: 'En attente',
-    cancelled: 'Annulée',
-    annule: 'Annulée',
-    annulé: 'Annulée',
+    VALIDEE: 'Validée',
+    PRESCRITE: 'Prescrite',
+    PARTIELLEMENT_SERVIE: 'Partiellement servie',
+    SERVIE: 'Servie',
+    ANNULEE: 'Annulée',
   }
 
   return labels[normalized.value] || 'Non défini'

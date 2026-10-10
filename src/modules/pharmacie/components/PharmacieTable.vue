@@ -1,12 +1,10 @@
-﻿<script setup>
+<script setup>
 import { RouterLink } from 'vue-router'
 
 import BaseButton from '@/shared/ui/base/BaseButton.vue'
 import PharmacieStatusBadge from '@/modules/pharmacie/components/PharmacieStatusBadge.vue'
 
 defineProps({
-  canDeliver: { type: Boolean, default: false },
-  canRemove: { type: Boolean, default: false },
   prescriptions: {
     type: Array,
     default: () => [],
@@ -17,7 +15,6 @@ defineProps({
   },
 })
 
-defineEmits(['remove', 'deliver'])
 
 function fullName(item) {
   return [item.nom, item.postnom, item.prenom].filter(Boolean).join(' ') || '—'
@@ -107,23 +104,6 @@ function fullName(item) {
                 <RouterLink :to="`/pharmacie/${item.id}`">
                   <BaseButton variant="secondary" size="sm">Voir</BaseButton>
                 </RouterLink>
-
-                <RouterLink :to="`/pharmacie/${item.id}/edit`">
-                  <BaseButton variant="secondary" size="sm">Modifier</BaseButton>
-                </RouterLink>
-
-                <BaseButton
-                  v-if="item.statut !== 'delivered'"
-                  variant="success"
-                  size="sm"
-                  @click="$emit('deliver', item)"
-                >
-                  Délivrer
-                </BaseButton>
-
-                <BaseButton variant="danger" size="sm" @click="$emit('remove', item)">
-                  Supprimer
-                </BaseButton>
               </div>
             </td>
           </tr>
@@ -174,23 +154,6 @@ function fullName(item) {
           <RouterLink :to="`/pharmacie/${item.id}`">
             <BaseButton variant="secondary" size="sm">Voir</BaseButton>
           </RouterLink>
-
-          <RouterLink :to="`/pharmacie/${item.id}/edit`">
-            <BaseButton variant="secondary" size="sm">Modifier</BaseButton>
-          </RouterLink>
-
-          <BaseButton
-            v-if="item.statut !== 'delivered'"
-            variant="success"
-            size="sm"
-            @click="$emit('deliver', item)"
-          >
-            Délivrer
-          </BaseButton>
-
-          <BaseButton variant="danger" size="sm" @click="$emit('remove', item)">
-            Supprimer
-          </BaseButton>
         </div>
       </article>
     </div>

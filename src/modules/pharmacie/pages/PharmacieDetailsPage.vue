@@ -32,17 +32,13 @@ onMounted(async () => {
         <h1 class="his-page-title">Détail prescription</h1>
 
         <p class="his-page-subtitle">
-          Médicaments prescrits, quantité, dosage et état de délivrance.
+          Médicaments prescrits, quantité, dosage et statut de chaque ligne.
         </p>
       </div>
 
       <div class="flex flex-wrap gap-2">
         <RouterLink to="/pharmacie">
           <BaseButton variant="secondary"> Retour </BaseButton>
-        </RouterLink>
-
-        <RouterLink v-if="prescription" :to="`/pharmacie/${prescription.id}/edit`">
-          <BaseButton> Modifier prescription </BaseButton>
         </RouterLink>
       </div>
     </header>
@@ -75,7 +71,7 @@ onMounted(async () => {
                 </p>
               </div>
 
-              <PharmacieStatusBadge :statut="item.delivre ? 'delivered' : 'pending'" />
+              <PharmacieStatusBadge :statut="item.status" />
             </div>
 
             <div class="mt-4 grid gap-3 text-sm leading-6 text-slate-600 md:grid-cols-3">
