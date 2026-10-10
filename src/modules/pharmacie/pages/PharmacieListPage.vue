@@ -1,27 +1,19 @@
-﻿<script setup>
-import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+<script setup>
+import { computed, onMounted } from 'vue'
 
 import BaseButton from '@/shared/ui/base/BaseButton.vue'
 import BaseCard from '@/shared/ui/base/BaseCard.vue'
-import ConfirmDialog from '@/shared/ui/overlay/ConfirmDialog.vue'
 
 import PharmacieSearchBar from '@/modules/pharmacie/components/PharmacieSearchBar.vue'
 import PharmacieTable from '@/modules/pharmacie/components/PharmacieTable.vue'
 
-import { useAuthStore } from '@/modules/auth/stores/auth.store'
 import { usePharmacieStore } from '@/modules/pharmacie/stores/pharmacie.store'
 import { useToastStore } from '@/shared/stores/toast.store'
 
-const auth = useAuthStore()
 const store = usePharmacieStore()
 const toast = useToastStore()
 
-const prescriptionToRemove = ref(null)
-const prescriptionToDeliver = ref(null)
 
-const removeOpen = ref(false)
-const deliverOpen = ref(false)
 
 const totalLabel = computed(() => {
   if (!store.pagination.total) return '0 prescription'
@@ -66,48 +58,12 @@ async function resetSearch() {
   await loadPrescriptions({ page: 1 })
 }
 
-function askDeliver(prescription) {
-  prescriptionToDeliver.value = prescription
-  deliverOpen.value = true
-}
 
-function closeDeliver() {
-  prescriptionToDeliver.value = null
-  deliverOpen.value = false
-}
 
-async function confirmDeliver() {
-  if (!prescriptionToDeliver.value?.id) return
 
-  try {
-    await store.deliverPrescription(prescriptionToDeliver.value)
-    closeDeliver()
-    await loadPrescriptions({ page: store.pagination.page })
-  } catch (error) {
-    console.error('[Pharmacie] Délivrance impossible:', error)
-  }
-}
 
-function askRemove(prescription) {
-  prescriptionToRemove.value = prescription
-  removeOpen.value = true
-}
 
-function closeRemove() {
-  prescriptionToRemove.value = null
-  removeOpen.value = false
-}
 
-async function confirmRemove() {
-  if (!prescriptionToRemove.value?.id) return
-
-  try {
-    await store.removePrescription(prescriptionToRemove.value.id)
-    closeRemove()
-  } catch (error) {
-    console.error('[Pharmacie] Suppression impossible:', error)
-  }
-}
 </script>
 
 <template>
@@ -117,13 +73,9 @@ async function confirmRemove() {
         <h1 class="his-page-title">Pharmacie / Prescriptions</h1>
 
         <p class="his-page-subtitle">
-          Prescriptions médicales, délivrance des médicaments et suivi pharmacie.
+          Consultation des prescriptions médicales et de leurs statuts.
         </p>
       </div>
-
-      <RouterLink v-if="auth.hasPermission('prescription:create')" to="/pharmacie/create">
-        <BaseButton> Nouvelle prescription </BaseButton>
-      </RouterLink>
     </header>
 
     <BaseCard>
@@ -152,8 +104,6 @@ async function confirmRemove() {
       <PharmacieTable
         :prescriptions="store.prescriptions"
         :loading="store.loading"
-        :can-deliver="auth.hasPermission('pharmacie:serve_prescription')" @deliver="askDeliver"
-        :can-remove="auth.hasPermission('prescription:validate')" @remove="askRemove"
       />
 
       <div class="mt-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -180,30 +130,6 @@ async function confirmRemove() {
         </div>
       </div>
     </BaseCard>
-
-    <ConfirmDialog
-      :open="deliverOpen"
-      title="Délivrer cette prescription"
-      :message="`Cette action va marquer tous les médicaments de la prescription ${prescriptionToDeliver?.medicament_principal || ''} comme délivrés. Cette action doit être auditée côté serveur.`"
-      confirm-label="Délivrer médicaments"
-      cancel-label="Annuler"
-      variant="success"
-      :loading="store.delivering"
-      @cancel="closeDeliver"
-      @confirm="confirmDeliver"
-    />
-
-    <ConfirmDialog
-      :open="removeOpen"
-      title="Supprimer cette prescription"
-      :message="`Cette action va supprimer la prescription ${prescriptionToRemove?.medicament_principal || ''}. Cette action doit être auditée côté serveur.`"
-      confirm-label="Supprimer prescription"
-      cancel-label="Annuler"
-      variant="danger"
-      :loading="store.deleting"
-      @cancel="closeRemove"
-      @confirm="confirmRemove"
-    />
   </div>
 </template>
 

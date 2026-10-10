@@ -27,10 +27,10 @@ const form = reactive({
 
 const statutOptions = [
   { label: 'Tous statuts', value: '' },
-  { label: 'En attente', value: 'pending' },
-  { label: 'Partielle', value: 'partial' },
-  { label: 'Délivrée', value: 'delivered' },
-  { label: 'Annulée', value: 'cancelled' },
+  { label: 'Validée', value: 'VALIDEE' },
+  { label: 'Partiellement servie', value: 'PARTIELLEMENT_SERVIE' },
+  { label: 'Servie', value: 'SERVIE' },
+  { label: 'Annulée', value: 'ANNULEE' },
 ]
 
 watch(

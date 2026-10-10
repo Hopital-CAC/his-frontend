@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 
@@ -7,10 +7,8 @@ import BaseButton from "@/shared/ui/base/BaseButton.vue";
 import BaseCard from "@/shared/ui/base/BaseCard.vue";
 import DataTable from "@/shared/ui/data/DataTable.vue";
 
-import { useAuthStore } from "@/modules/auth/stores/auth.store";
 import { usePharmacieStore } from "@/modules/pharmacie/stores/pharmacie.store";
 
-const auth = useAuthStore();
 const store = usePharmacieStore();
 
 const columns = [
@@ -26,14 +24,14 @@ const recentRows = computed(() => {
     numero_fiche: item.numero_fiche,
     patient: [item.nom, item.postnom, item.prenom].filter(Boolean).join(" ") || "Patient",
     medicament: item.medicament_principal || "Prescription",
-    statut: item.statut || "pending"
+    statut: item.statut || "VALIDEE"
   }));
 });
 
 const pendingRows = computed(() => {
   return store.prescriptions
     .filter((item) =>
-      ["pending", "partial", "en_attente", "attente"].includes(String(item.statut || "").toLowerCase())
+      ["VALIDEE", "PARTIELLEMENT_SERVIE"].includes(String(item.statut || "").toUpperCase())
     )
     .slice(0, 6)
     .map((item) => ({
@@ -41,7 +39,7 @@ const pendingRows = computed(() => {
       numero_fiche: item.numero_fiche,
       patient: [item.nom, item.postnom, item.prenom].filter(Boolean).join(" ") || "Patient",
       medicament: item.medicament_principal || "Prescription",
-      statut: item.statut || "pending"
+      statut: item.statut || "VALIDEE"
     }));
 });
 
@@ -61,13 +59,9 @@ onMounted(() => {
         <h1 class="mt-3 his-page-title">Dashboard Pharmacie</h1>
 
         <p class="his-page-subtitle">
-          Suivi des prescriptions, médicaments à délivrer, délivrances partielles et activité pharmacie.
+          Consultation en lecture des prescriptions médicales et de leurs statuts.
         </p>
       </div>
-
-      <RouterLink v-if="auth.hasPermission('prescription:create')" to="/pharmacie/create">
-        <BaseButton>Nouvelle prescription</BaseButton>
-      </RouterLink>
     </header>
 
     <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-7">
@@ -76,19 +70,19 @@ onMounted(() => {
         <p class="mt-1 text-sm text-slate-500">Chargées</p>
       </BaseCard>
 
-      <BaseCard title="À servir">
+      <BaseCard title="Validées">
         <p class="text-3xl font-bold text-amber-600">{{ stats.aServir }}</p>
-        <p class="mt-1 text-sm text-slate-500">En attente</p>
+        <p class="mt-1 text-sm text-slate-500">Statut VALIDEE</p>
       </BaseCard>
 
-      <BaseCard title="Délivrées">
+      <BaseCard title="Servies">
         <p class="text-3xl font-bold text-emerald-700">{{ stats.delivrees }}</p>
-        <p class="mt-1 text-sm text-slate-500">Terminées</p>
+        <p class="mt-1 text-sm text-slate-500">Statut SERVIE</p>
       </BaseCard>
 
-      <BaseCard title="Partielles">
+      <BaseCard title="Partiellement servies">
         <p class="text-3xl font-bold text-blue-700">{{ stats.partielles }}</p>
-        <p class="mt-1 text-sm text-slate-500">À compléter</p>
+        <p class="mt-1 text-sm text-slate-500">Statut PARTIELLEMENT_SERVIE</p>
       </BaseCard>
 
       <BaseCard title="Médicaments">
@@ -108,11 +102,11 @@ onMounted(() => {
     </section>
 
     <section class="grid gap-6 xl:grid-cols-2">
-      <BaseCard title="Prescriptions à servir" subtitle="File prioritaire pharmacie.">
+      <BaseCard title="Prescriptions actives" subtitle="Prescriptions validées ou partiellement servies.">
         <DataTable
           :columns="columns"
           :rows="pendingRows"
-          empty-text="Aucune prescription en attente."
+          empty-text="Aucune prescription active."
         />
       </BaseCard>
 
@@ -131,7 +125,7 @@ onMounted(() => {
       </BaseCard>
     </section>
 
-    <BaseCard title="Règles métier Pharmacie" subtitle="Sécurité de dispensation.">
+    <BaseCard title="Règles métier Prescription" subtitle="Consultation en lecture seule des prescriptions.">
       <ul class="space-y-2 text-sm text-slate-600">
         <li>• Vérifier l’identité du patient avant délivrance.</li>
         <li>• Délivrance complète ou partielle doit être traçable.</li>

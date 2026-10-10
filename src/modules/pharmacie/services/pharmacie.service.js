@@ -4,46 +4,31 @@ function unwrapResponse(response) {
   return response?.data ?? response
 }
 
-function cleanParams(params = {}) {
-  return Object.fromEntries(
-    Object.entries(params).filter(
-      ([, value]) => value !== undefined && value !== null && value !== '',
-    ),
-  )
+function unwrapData(response) {
+  const payload = unwrapResponse(response)
+  return payload?.data ?? payload
 }
 
 export const pharmacieService = {
-  async list(params = {}) {
-    const limit = params.limit || params.limite || 10
-
-    const response = await api.get('/pharmacie', {
-      params: cleanParams({
+  async listPrescriptions(params = {}) {
+    const response = await api.get('/prescriptions', {
+      params: {
+        q: params.q || undefined,
+        episodeId: params.episodeId || undefined,
+        consultationId: params.consultationId || undefined,
+        patientId: params.patientId || undefined,
+        status: params.status || undefined,
         page: params.page || 1,
-        limit,
-        limite: limit,
-      }),
+        limit: params.limit || 20,
+      },
     })
 
-    return unwrapResponse(response)
+    return unwrapData(response)
   },
 
-  async getById(id) {
-    const response = await api.get(`/pharmacie/${id}`)
-    return unwrapResponse(response)
-  },
-
-  async create(payload) {
-    const response = await api.post('/pharmacie', payload)
-    return unwrapResponse(response)
-  },
-
-  async update(id, payload) {
-    const response = await api.patch(`/pharmacie/${id}`, payload)
-    return unwrapResponse(response)
-  },
-
-  async remove(id) {
-    const response = await api.delete(`/pharmacie/${id}`)
-    return unwrapResponse(response)
+  async getPrescriptionById(id) {
+    const response = await api.get(`/prescriptions/${id}`)
+    const payload = unwrapData(response)
+    return payload?.item ?? payload
   },
 }
