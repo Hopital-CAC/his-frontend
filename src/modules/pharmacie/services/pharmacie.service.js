@@ -15,7 +15,8 @@ export const pharmacieService = {
       params: {
         q: params.q || undefined,
         episodeId: params.episodeId || undefined,
-        consultationId: params.consultationId || undefined,
+        consultationId:
+          params.consultationId || undefined,
         patientId: params.patientId || undefined,
         status: params.status || undefined,
         page: params.page || 1,
@@ -27,8 +28,43 @@ export const pharmacieService = {
   },
 
   async getPrescriptionById(id) {
-    const response = await api.get(`/prescriptions/${id}`)
+    const response =
+      await api.get(`/prescriptions/${id}`)
+
     const payload = unwrapData(response)
+
     return payload?.item ?? payload
+  },
+
+  async listDispenses(params = {}) {
+    const response =
+      await api.get('/pharmacie/dispenses', {
+        params: {
+          q: params.q || undefined,
+          prescriptionId:
+            params.prescriptionId || undefined,
+          episodeId:
+            params.episodeId || undefined,
+          patientId:
+            params.patientId || undefined,
+          status: params.status || undefined,
+          page: params.page || 1,
+          limit: params.limit || 100,
+        },
+      })
+
+    return unwrapData(response)
+  },
+
+  async servePrescription(payload) {
+    const response =
+      await api.post(
+        '/pharmacie/serve-prescription',
+        payload,
+      )
+
+    const data = unwrapData(response)
+
+    return data?.item ?? data
   },
 }
