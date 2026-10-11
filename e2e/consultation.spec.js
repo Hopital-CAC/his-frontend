@@ -866,6 +866,195 @@ async function saveClinicalData(
   })
 }
 
+async function createPrescription(
+  page,
+  consultationId,
+) {
+  const clinicalNotes =
+    'Prescription E2E navigateur Phase 11'
+  const medicationName =
+    `Paracetamol E2E ${Date.now()}`
+  const dosage = '500 mg'
+  const frequency = '3 fois/jour'
+  const duration = '3 jours'
+  const quantity = 9
+  const instructions = 'Après repas'
+
+  await page
+    .getByRole('button', {
+      name: 'Prescrire',
+      exact: true,
+    })
+    .click()
+
+  await expect(
+    page.getByText('Prescrire un traitement'),
+  ).toBeVisible()
+
+  await page
+    .getByLabel('Notes cliniques')
+    .fill(clinicalNotes)
+
+  await page
+    .getByRole('textbox', { name: 'Médicament', exact: true })
+    .fill(medicationName)
+
+  await page
+    .getByRole('textbox', { name: 'Dosage', exact: true })
+    .fill(dosage)
+
+  await page
+    .getByRole('textbox', { name: 'Fréquence', exact: true })
+    .fill(frequency)
+
+  await page
+    .getByRole('textbox', { name: 'Durée', exact: true })
+    .fill(duration)
+
+  await page
+    .getByRole('spinbutton', { name: 'Quantité', exact: true })
+    .fill(String(quantity))
+
+  await page
+    .getByRole('textbox', { name: 'Instructions', exact: true })
+    .fill(instructions)
+
+  await page
+    .getByRole('button', {
+      name: 'Vérifier la prescription',
+    })
+    .click()
+
+  const dialog =
+    page.getByRole('dialog', {
+      name: 'Confirmer la prescription',
+    })
+
+  await expect(dialog).toBeVisible()
+
+  await dialog
+    .getByLabel(
+      'Saisir CONFIRMER pour confirmer',
+    )
+    .fill('CONFIRMER')
+
+  const path =
+    `/api/v1/consultations/${consultationId}/prescriptions`
+
+  const requestPromise =
+    page.waitForRequest(
+      (request) =>
+        isApiRequest(
+          request,
+          'POST',
+          path,
+        ),
+    )
+
+  const responsePromise =
+    page.waitForResponse(
+      (response) =>
+        isApiResponse(
+          response,
+          'POST',
+          path,
+        ) &&
+        response.status() === 201,
+    )
+
+  await dialog
+    .getByRole('button', {
+      name: 'Valider la prescription',
+    })
+    .click()
+
+  const [request, response] =
+    await Promise.all([
+      requestPromise,
+      responsePromise,
+    ])
+
+  expect(response.status()).toBe(201)
+
+  expect(
+    request.postDataJSON(),
+  ).toEqual({
+    clinicalNotes,
+    lines: [
+      {
+        medicationName,
+        dosage,
+        frequency,
+        duration,
+        quantity,
+        instructions,
+      },
+    ],
+    confirmationAcknowledged: true,
+  })
+
+  const prescription =
+    responseItem(
+      await response.json(),
+    )
+
+  expect(
+    String(prescription?.id || ''),
+  ).toBeTruthy()
+
+  expect(
+    String(
+      prescription?.prescriptionCode || '',
+    ),
+  ).toBeTruthy()
+
+  expect(
+    prescription?.status,
+  ).toBe('VALIDEE')
+
+  expect(
+    prescription?.episode?.status,
+  ).toBe('EN_PHARMACIE')
+
+  expect(
+    prescription?.consultation?.id,
+  ).toBeTruthy()
+
+  expect(
+    Array.isArray(prescription?.lines),
+  ).toBe(true)
+
+  expect(
+    prescription?.lines,
+  ).toHaveLength(1)
+
+  expect(
+    prescription?.lines?.[0],
+  ).toMatchObject({
+    medicationName,
+    dosage,
+    frequency,
+    duration,
+    quantity,
+    instructions,
+    status: 'PRESCRITE',
+  })
+
+  await expect(
+    page.getByText(
+      'Prescription enregistrée et transmise à la pharmacie.',
+    ),
+  ).toBeVisible()
+
+  await expect(
+    page.getByText(
+      'Le patient est actuellement orienté vers la pharmacie.',
+    ),
+  ).toBeVisible()
+
+  return prescription
+}
+
 async function requestLaboratoryExam(
   page,
   consultationId,
@@ -1215,6 +1404,109 @@ test.describe(
     })
 
     test.setTimeout(180_000)
+
+    test(
+      'Réception → Triage → Consultation → prescription → pharmacie',
+      async ({ page }) => {
+        const identity =
+          uniqueIdentity()
+
+        const receptionSession =
+          await login(
+            page,
+            receptionEmail,
+            receptionPassword,
+            'RECEPTIONIST',
+          )
+
+        expect(
+          receptionSession.permissions,
+        ).toEqual(
+          expect.arrayContaining([
+            'patient:create',
+            'reception:create',
+            'episode:create',
+          ]),
+        )
+
+        const episodeId =
+          await createReceptionForTriage(
+            page,
+            identity,
+          )
+
+        const triageSession =
+          await switchUser(
+            page,
+            triageEmail,
+            triagePassword,
+            'INFIRMIER',
+          )
+
+        expect(
+          triageSession.permissions,
+        ).toEqual(
+          expect.arrayContaining([
+            'triage:read',
+            'triage:create',
+            'triage:update',
+          ]),
+        )
+
+        await openEpisodeFromQueue(
+          page,
+          identity,
+          episodeId,
+        )
+
+        const serviceValue =
+          await fillInitialTriage(
+            page,
+          )
+
+        await submitInitialTriage(
+          page,
+          episodeId,
+          serviceValue,
+        )
+
+        const physicianSession =
+          await switchUser(
+            page,
+            physicianEmail,
+            physicianPassword,
+            'MEDECIN',
+          )
+
+        expect(
+          physicianSession.permissions,
+        ).toEqual(
+          expect.arrayContaining([
+            'consultation:read',
+            'consultation:create',
+            'consultation:update',
+            'prescription:create',
+          ]),
+        )
+
+        const consultationId =
+          await startConsultation(
+            page,
+            identity,
+            episodeId,
+          )
+
+        await saveClinicalData(
+          page,
+          consultationId,
+        )
+
+        await createPrescription(
+          page,
+          consultationId,
+        )
+      },
+    )
 
     test(
       'Réception → Triage → Consultation → examen labo → résultat → clôture sortie',
